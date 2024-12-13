@@ -1,0 +1,126 @@
+---
+title: " NK in Multiple Myeloma"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    highlight: espresso
+    theme: yeti
+    toc: yes
+    toc_depth: 1
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '1'
+  
+---
+
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## NK in multiple Myeloma
+
+
+
+```{r QC118, echo=FALSE, message=FALSE,fig.width=10,fig.height=6,warning=FALSE, results='asis'}
+
+ ### Define working folder (contains R/Rmd file for current sample, parent contains global project files)
+WORKING_DIR   = getwd();
+analysisParamsFilePath = file.path( WORKING_DIR, "analysisParams.R")
+dataPath=PATH_01QC_OUTPUT_NOT_FILTERED
+ 
+ ### Load libraries, global functions/variables, and chunks
+
+
+```                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+
+
+[//]: # "Load the various chunks in the various files"
+```{r readChunks, echo=FALSE, warning=FALSE, message=FALSE}
+source( file.path( WORKING_DIR, "00A_Global_Dependencies.R"));
+source( file.path( WORKING_DIR, "load_parameters.R"));
+
+theme_set(  theme_classic())
+
+read_chunk( path=file.path( WORKING_DIR,"01_Prepare_Data.R"))
+read_chunk( path=file.path( WORKING_DIR,"02_Azimuth_Annotation.R"))
+#read_chunk( path=file.path( WORKING_DIR,"03_scaling_to_markers.R"))
+#read_chunk( path=file.path( WORKING_DIR,"04_FeaturesPlot.R"))
+#read_chunk( path=file.path( WORKING_DIR,"05_singleR.R"))
+#read_chunk( path=file.path( WORKING_DIR,"06_correlation_PC_metadata.R"))
+
+```
+
+
+
+
+### Environment  {.tabset}
+
+#### Parameters 
+
+<center>
+```{r runInfo, echo=FALSE, message=FALSE}
+paramsEnv = new.env();
+source( analysisParamsFilePath, local = paramsEnv);
+showSimpleDT( paramsEnv)
+```
+
+#### R
+
+```{r runInfo_r, echo=FALSE, message=FALSE}
+print( sessionInfo());
+```
+
+```{r, echo=FALSE,include = FALSE}
+# You need this code to conduct the magic dependences attaching...
+DT::datatable(matrix(),extensions = 'Buttons',  options = list(dom = 'Blfrtip', buttons = c('excel', "csv")))
+```
+
+
+# Azimuth Annotation for each sample one by  one {.tabset .tabset-fade}
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE,warning=FALSE,fig.width=20,fig.height=20, results='asis'}
+<<Prepare_Data>>
+```
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE,warning=FALSE,fig.width=20,fig.height=20, results='asis'}
+
+#Run diagnostic for each of the sample:
+
+#LIST_NAMES_SAMPLES = LIST_NAMES_SAMPLES[1:2] #Little test on the 3 first objects
+LIST_RDS_POST_02_Azimuth_NOT_FILTERED = list()
+
+for (Name_sample in LIST_NAMES_SAMPLES){
+  
+  myObjectSeurat = LIST_RDS_POST_01QC_NOT_FILTERED[[Name_sample]]
+  
+  cat(" \n \n")
+  cat("##", Name_sample , "Azimuth annotation  {.tabset .tabset-fade}")
+  cat(" \n \n")
+  
+  
+  <<Azimuth_Annotation>>
+  
+  
+  LIST_RDS_POST_02_Azimuth_NOT_FILTERED = append(LIST_RDS_POST_02_Azimuth_NOT_FILTERED, myObjectSeurat )
+}
+
+names(LIST_RDS_POST_02_Azimuth_NOT_FILTERED) = LIST_NAMES_SAMPLES
+
+#Save the list of Seurat objects with post 01QC if it does not already exist
+if(file.exists(file.path(PATH_EXPERIMENT_OUTPUT, "02_Azimuth_Mapping/List_Seurat_Objects_Post_02_Azimuth.rds")) == FALSE){
+  saveRDS(LIST_RDS_POST_02_Azimuth_NOT_FILTERED , file.path(PATH_EXPERIMENT_OUTPUT,"02_Azimuth_Mapping/List_Seurat_Objects_Post_02_Azimuth.rds"))
+}
+
+
+```
+
+
+
+
+
