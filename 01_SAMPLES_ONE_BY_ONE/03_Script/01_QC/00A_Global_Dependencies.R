@@ -51,7 +51,6 @@ library(rlist)
 
 
 #Def functions manualy
-
 #def function
 # +- std
 data_summary <- function(x) {

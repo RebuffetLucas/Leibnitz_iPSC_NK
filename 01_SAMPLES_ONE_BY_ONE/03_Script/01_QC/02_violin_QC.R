@@ -1,101 +1,63 @@
 ## @knitr violin_QC
 
+# Print section header for RMarkdown/knitr output
 cat(" \n \n")
 cat("#### Violin QC ")
 cat(" \n \n")
 
-dfCont<-data.frame(
- nFeature_RNA= myObjectSeurat[["nFeature_RNA"]],
- nCount_RNA= myObjectSeurat[["nCount_RNA"]],
- percent.mito= myObjectSeurat[["percent.mito"]],
- orig.ident= myObjectSeurat[["orig.ident"]],
- percent.ribo= myObjectSeurat[["percent.ribo"]]
+# Create a data frame with selected QC metrics from Seurat object
+dfCont <- data.frame(
+    nFeature_RNA = myObjectSeurat[["nFeature_RNA"]],      # Number of detected genes per cell
+    nCount_RNA = myObjectSeurat[["nCount_RNA"]],          # Total UMI counts per cell
+    percent.mito = myObjectSeurat[["percent.mito"]],      # Percent of reads mapping to mitochondrial genes
+    orig.ident = myObjectSeurat[["orig.ident"]],          # Sample identifier
+    percent.ribo = myObjectSeurat[["percent.ribo"]]       # Percent of reads mapping to ribosomal genes
 )
 
-p1<-ggplot(dfCont,aes(x=orig.ident,y=nFeature_RNA,fill=orig.ident))+ 
-    ggdist::stat_halfeye(
+# ---- Violin plot for number of features (genes detected) ----
+p1 <- ggplot(dfCont, aes(x = orig.ident, y = nFeature_RNA, fill = orig.ident)) + 
+    ggdist::stat_halfeye(           # Smoothed distribution plot
         adjust = .5, 
         width = .6, 
         .width = 0, 
         justification = -.3, 
-        point_colour = NA) + 
-    geom_boxplot(
+        point_colour = NA
+    ) + 
+    geom_boxplot(                   # Add boxplot inside violin
         width = .15, 
         outlier.shape = NA
     ) +
-    ## add justified jitter from the {gghalves} package
-    gghalves::geom_half_point(
-        ## draw jitter on the left
+    gghalves::geom_half_point(     # Add half-jittered points
         side = "l", 
-        ## control range of jitter
         range_scale = .6, 
-        ## add some transparency
-        alpha = .1,size=0.1
-    )+scale_fill_manual(values = my_palette)
+        alpha = .1,
+        size = 0.1
+    ) +
+    scale_fill_manual(values = my_palette)  # Use custom color palette
 
-p2<-ggplot(dfCont,aes(x=orig.ident,y=nCount_RNA,fill=orig.ident))+ 
-    ggdist::stat_halfeye(
-        adjust = .5, 
-        width = .6, 
-        .width = 0, 
-        justification = -.3, 
-        point_colour = NA) + 
-    geom_boxplot(
-        width = .15, 
-        outlier.shape = NA
-    ) +
-    ## add justified jitter from the {gghalves} package
-    gghalves::geom_half_point(
-        ## draw jitter on the left
-        side = "l", 
-        ## control range of jitter
-        range_scale = .6, 
-        ## add some transparency
-        alpha = .1,size=0.1
-    )+scale_fill_manual(values = my_palette)
-p3<-ggplot(dfCont,aes(x=orig.ident,y=percent.mito,fill=orig.ident))+ 
-    ggdist::stat_halfeye(
-        adjust = .5, 
-        width = .6, 
-        .width = 0, 
-        justification = -.3, 
-        point_colour = NA) + 
-    geom_boxplot(
-        width = .15, 
-        outlier.shape = NA
-    ) +
-    ## add justified jitter from the {gghalves} package
-    gghalves::geom_half_point(
-        ## draw jitter on the left
-        side = "l", 
-        ## control range of jitter
-        range_scale = .6, 
-        ## add some transparency
-        alpha = .1,size=0.1
-    )+scale_fill_manual(values = my_palette)
-p4<-ggplot(dfCont,aes(x=orig.ident,y=percent.ribo,fill=orig.ident))+ 
-    ggdist::stat_halfeye(
-        adjust = .5, 
-        width = .6, 
-        .width = 0, 
-        justification = -.3, 
-        point_colour = NA) + 
-    geom_boxplot(
-        width = .15, 
-        outlier.shape = NA
-    ) +
-    ## add justified jitter from the {gghalves} package
-    gghalves::geom_half_point(
-        ## draw jitter on the left
-        side = "l", 
-        ## control range of jitter
-        range_scale = .6, 
-        ## add some transparency
-        alpha = .1,size=0.1
-    )+scale_fill_manual(values = my_palette)
+# ---- Violin plot for total UMI counts ----
+p2 <- ggplot(dfCont, aes(x = orig.ident, y = nCount_RNA, fill = orig.ident)) + 
+    ggdist::stat_halfeye(adjust = .5, width = .6, .width = 0, justification = -.3, point_colour = NA) + 
+    geom_boxplot(width = .15, outlier.shape = NA) +
+    gghalves::geom_half_point(side = "l", range_scale = .6, alpha = .1, size = 0.1) +
+    scale_fill_manual(values = my_palette)
 
+# ---- Violin plot for percent mitochondrial content ----
+p3 <- ggplot(dfCont, aes(x = orig.ident, y = percent.mito, fill = orig.ident)) + 
+    ggdist::stat_halfeye(adjust = .5, width = .6, .width = 0, justification = -.3, point_colour = NA) + 
+    geom_boxplot(width = .15, outlier.shape = NA) +
+    gghalves::geom_half_point(side = "l", range_scale = .6, alpha = .1, size = 0.1) +
+    scale_fill_manual(values = my_palette)
 
-print( p1+p2+p3+p4 )
+# ---- Violin plot for percent ribosomal content ----
+p4 <- ggplot(dfCont, aes(x = orig.ident, y = percent.ribo, fill = orig.ident)) + 
+    ggdist::stat_halfeye(adjust = .5, width = .6, .width = 0, justification = -.3, point_colour = NA) + 
+    geom_boxplot(width = .15, outlier.shape = NA) +
+    gghalves::geom_half_point(side = "l", range_scale = .6, alpha = .1, size = 0.1) +
+    scale_fill_manual(values = my_palette)
+
+# Combine and print all violin plots in one row
+print(p1 + p2 + p3 + p4)
 
 
 ## @knitr FeatureScatter
@@ -104,19 +66,43 @@ cat(" \n \n")
 cat("#### Feature Scatter ")
 cat(" \n \n")
 
+# ---- Scatter plot: nCount_RNA vs percent.mito ----
+print(
+    FeatureScatter(
+        myObjectSeurat,
+        feature1 = "nCount_RNA",
+        feature2 = "percent.mito",
+        group.by = "orig.ident",
+        cols = my_palette,
+        pt.size = PT_SIZE_FEATURE_SCATTER
+    ) +
+        geom_hline(yintercept = VISUAL_TRESHOLD_MITO, linetype = "dashed", color = "red")  # Horizontal QC threshold
+)
 
-cat(" \n \n")
-print( FeatureScatter(myObjectSeurat, feature1 = "nCount_RNA", feature2 = "percent.mito",group.by = "orig.ident",cols = my_palette,pt.size = 0.5)  + geom_hline(yintercept = VISUAL_TRESHOLD_MITO, linetype = "dashed", color = "red"))
-cat(" \n \n")
+# ---- Scatter plot: nCount_RNA vs nFeature_RNA ----
+print(
+    FeatureScatter(
+        myObjectSeurat,
+        feature1 = "nCount_RNA",
+        feature2 = "nFeature_RNA",
+        group.by = "orig.ident",
+        cols = my_palette,
+        pt.size = PT_SIZE_FEATURE_SCATTER
+    )
+)
 
-cat(" \n \n")
-print( FeatureScatter(myObjectSeurat, feature1 = "nCount_RNA", feature2 = "nFeature_RNA",group.by = "orig.ident",cols = my_palette,pt.size = 0.5))
-cat(" \n \n")
-
-cat(" \n \n")
-print( FeatureScatter( myObjectSeurat, feature1 = 'percent.mito', feature2='percent.ribo',group.by = "orig.ident",cols = my_palette,pt.size = 0.5) + geom_vline(xintercept = VISUAL_TRESHOLD_MITO, linetype = "dashed", color = "red"))
-cat(" \n \n")
-
+# ---- Scatter plot: percent.mito vs percent.ribo ----
+print(
+    FeatureScatter(
+        myObjectSeurat,
+        feature1 = 'percent.mito',
+        feature2 = 'percent.ribo',
+        group.by = "orig.ident",
+        cols = my_palette,
+        pt.size = PT_SIZE_FEATURE_SCATTER
+    ) +
+        geom_vline(xintercept = VISUAL_TRESHOLD_MITO, linetype = "dashed", color = "red")  # Vertical mito QC threshold
+)
 
 
 ############################################################
@@ -125,31 +111,40 @@ cat(" \n \n")
 
 ## @knitr FeatureScatter2
 
-Nb_pops=length(unique(myObjectSeurat@meta.data[["BlueprintEncodeData.fine"]]))
-mypalette2 = hue_pal()(Nb_pops)
-names(mypalette2) <- unique(myObjectSeurat@meta.data[["BlueprintEncodeData.fine"]])
-# Change the color of "NK cells" to #FF0000
-mypalette2["NK cells"] <- "#FF0000"
-
-
+# Define color palette for cell types from SingleR
+Nb_pops = length(unique(myObjectSeurat@meta.data[["BlueprintEncodeData.fine"]]))    # Number of unique labels
+mypalette2 = hue_pal()(Nb_pops)                                                     # Generate distinct colors
+names(mypalette2) <- unique(myObjectSeurat@meta.data[["BlueprintEncodeData.fine"]]) # Name them
+mypalette2["NK cells"] <- "#FF0000"                                                 # Assign red to NK cells
 
 cat(" \n \n")
 cat("#### Feature Scatter with SingleR Id")
 cat(" \n \n")
 
 
-cat(" \n \n")
-print( FeatureScatter(myObjectSeurat, feature1 = "nCount_RNA", feature2 = "percent.mito",group.by = "BlueprintEncodeData.fine",cols = mypalette2, pt.size = 0.5)  + geom_hline(yintercept = VISUAL_TRESHOLD_MITO, linetype = "dashed", color = "red") + geom_vline(xintercept = VISUAL_TRESHOLD_nCOUNT, linetype = "dashed", color = "red"))
-cat(" \n \n")
+# ---- Scatter plot: nCount_RNA vs nFeature_RNA, colored by cell type ----
+print(
+    FeatureScatter(
+        myObjectSeurat,
+        feature1 = "nCount_RNA",
+        feature2 = "nFeature_RNA",
+        group.by = "BlueprintEncodeData.fine",
+        cols = mypalette2,
+        pt.size = PT_SIZE_FEATURE_SCATTER
+    ) +
+        geom_hline(yintercept = VISUAL_TRESHOLD_nFEATURE, linetype = "dashed", color = "red") +
+        geom_vline(xintercept = VISUAL_TRESHOLD_nCOUNT, linetype = "dashed", color = "red")
+)
 
-
-cat(" \n \n")
-print( FeatureScatter(myObjectSeurat, feature1 = "nCount_RNA", feature2 = "nFeature_RNA",group.by = "BlueprintEncodeData.fine",cols = mypalette2, pt.size = 0.5) + geom_hline(yintercept = VISUAL_TRESHOLD_nFEATURE, linetype = "dashed", color = "red") + geom_vline(xintercept = VISUAL_TRESHOLD_nCOUNT, linetype = "dashed", color = "red"))
-cat(" \n \n")
-
-
-cat(" \n \n")
-print( FeatureScatter( myObjectSeurat, feature1 = 'percent.mito', feature2='percent.ribo',group.by = "BlueprintEncodeData.fine",cols = mypalette2, pt.size = 0.5) + geom_vline(xintercept = VISUAL_TRESHOLD_MITO, linetype = "dashed", color = "red"))
-cat(" \n \n")
-
-
+# ---- Scatter plot: percent.mito vs percent.ribo, colored by cell type ----
+print(
+    FeatureScatter(
+        myObjectSeurat,
+        feature1 = 'percent.mito',
+        feature2 = 'percent.ribo',
+        group.by = "BlueprintEncodeData.fine",
+        cols = mypalette2,
+        pt.size = PT_SIZE_FEATURE_SCATTER
+    ) +
+        geom_vline(xintercept = VISUAL_TRESHOLD_MITO, linetype = "dashed", color = "red")
+)
